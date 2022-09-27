@@ -1,27 +1,85 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Vue from "vue";
+import VueRouter from "vue-router";
+import Login from "../views/Login/Login.vue";
+import Home from "../views/Home/Home.vue";
+import Form from "../views/Home/Form.vue";
+import Info from "../views/Home/Info.vue";
+import Video from "../views/Home/Video.vue";
+import { LoadingPlugin } from "tdesign-vue";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path: "/",
+    name: "Login",
+    component: Login,
+    meta: {
+      title: "登录",
+    },
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }
-]
+    path: "/home",
+    name: "Home",
+    component: Home,
+    meta: {
+      title: "面板",
+      auth:true
+    },
+    children: [
+      {
+        path: "/form",
+        name: "Form",
+        component: Form,
+        meta: {
+          title: "Form",
+      auth:true
+        },
+      },
+      {
+        path: "/info",
+        name: "Info",
+        component: Info,
+        meta: {
+          title: "Info",
+      auth:true
+
+        },
+      },
+      {
+        path: "/video",
+        name: "Video",
+        component: Video,
+        meta: {
+          title: "Video",
+      auth:true
+
+        },
+      },
+    ],
+  },
+];
 
 const router = new VueRouter({
-  routes
-})
+  mode: 'hash',
+  base:'/',
+  routes,
+});
 
-export default router
+router.beforeEach((to, from, next) => {
+  let title = to.meta.title;
+  document.title = title;
+  if (to.meta.auth) {
+    let token = localStorage.getItem("token");
+    token = token && token.trim();
+    if (token) {
+      next();
+    } else {
+      next("/");
+    }
+  } else {
+    next();
+  }
+});
+
+export default router;
